@@ -1,0 +1,73 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Item {
+  id          Int         @id @default(autoincrement())
+  name        String      @unique @db.VarChar(200)
+  description String      @db.Text
+  variant     String?     @db.VarChar()
+  stock       Int?        @db.Integer
+  price       Decimal?    @db.Decimal(12, 2)
+  subvariant  String?     @db.VarChar(50)
+  variation   Variation[]
+
+  @@index([name], type: Hash)
+}
+
+model Variation {
+  id           Int            @id @default(autoincrement())
+  name         String         @db.VarChar(50)
+  stock        Int?           @db.Integer
+  price        Decimal?       @db.Decimal(12, 2)
+  item_id      Int
+  item         Item           @relation(fields: [item_id], references: [id])
+  subvariation Subvariation[]
+}
+
+model Subvariation {
+  id           Int       @id @default(autoincrement())
+  name         String    @db.VarChar(50)
+  stock        Int       @db.Integer
+  price        Decimal   @db.Decimal(12, 2)
+  variation_id Int
+  variation    Variation @relation(fields: [variation_id], references: [id])
+}
+
+// model Item {
+//   id          Int    @id @default(autoincrement())
+//   name        String @unique @db.VarChar(200)
+//   description String @db.Text
+
+//   variation Variation[]
+
+//   @@index([name], type: Hash)
+// }
+
+// model Variation {
+//   id      Int    @id @default(autoincrement())
+//   item_id Int
+//   item    Item   @relation(fields: [item_id], references: [id])
+//   name    String @db.VarChar(100)
+//   value   String @db.VarChar(100)
+
+//   stock Stock[]
+// }
+
+// model Stock {
+//   id           Int       @id @default(autoincrement())
+//   variation_id Int
+//   variation    Variation @relation(fields: [variation_id], references: [id])
+//   quantity     Int
+// }

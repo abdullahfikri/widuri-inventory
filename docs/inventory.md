@@ -1,0 +1,7 @@
+# CREATE INVENTORY
+
+/api/inventories
+
+# UPDATE INVENTORY
+
+# DELETE INVENTORY
