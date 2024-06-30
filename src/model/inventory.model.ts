@@ -50,3 +50,42 @@ export class CreateItemResponse {
   subvariant?: string;
   variation?: Variation[];
 }
+
+export class GetItemsWithPagination {
+  page: string;
+  pageSize: string;
+}
+
+export class GetItemsWithPaginationResponse {
+  totalItems: number;
+  totalPages: number;
+  currentPage: number;
+  items: CreateItemResponse[] | [];
+}
+
+export class UpdateSubVariation {
+  id?: number;
+  variation_id?: number;
+  name?: string;
+  stock?: number;
+  price?: Prisma.Decimal | string;
+}
+
+export class UpdateVariation {
+  id?: number;
+  item_id?: number;
+  name?: string;
+  stock?: number;
+  price?: Prisma.Decimal | string;
+  subvariation?: SubVariation[];
+}
+
+export class UpdateItemRequest {
+  name?: string;
+  description?: string;
+  stock?: number;
+  price?: string;
+  variant?: string;
+  subvariant?: string;
+  variation?: Variation[];
+}
