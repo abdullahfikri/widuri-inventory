@@ -12,17 +12,42 @@ export class ErrorFilter implements ExceptionFilter {
     const response = host.switchToHttp().getResponse();
 
     if (exception instanceof HttpException) {
+      if (exception.getStatus() === 409) {
+        return response.status(exception.getStatus()).json({
+          message: exception.getResponse(),
+          errors: 'Conflic',
+        });
+      }
+      if (exception.getStatus() === 400) {
+        return response.status(exception.getStatus()).json({
+          message: exception.getResponse(),
+          errors: 'Bad Request',
+        });
+      }
+      if (exception.getStatus() === 404) {
+        return response.status(exception.getStatus()).json({
+          message: exception.getResponse(),
+          errors: 'Not Found',
+        });
+      }
       response.status(exception.getStatus()).json({
-        errors: exception.getResponse(),
+        message: exception.getResponse(),
+        errors: 'Error',
       });
     } else if (exception instanceof ZodError) {
+      const getPathRequired = exception.errors.map((err) => {
+        const path = err.path.join(', ');
+        return { path, message: err.message };
+      });
+
       response.status(400).json({
+        message: getPathRequired,
         errors: 'Validation error',
-        data: exception.errors[0].message,
       });
     } else {
       response.status(500).json({
-        errors: exception.message,
+        message: exception.message,
+        errors: 'Internal Server Error',
       });
     }
   }

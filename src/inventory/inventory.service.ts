@@ -5,6 +5,8 @@ import { ValidationService } from 'src/common/validation.service';
 import {
   CreateItemRequest,
   CreateItemResponse,
+  GetItemsWithPagination,
+  GetItemsWithPaginationResponse,
 } from 'src/model/inventory.model';
 import { Logger } from 'winston';
 import { InventoryValidation } from './inventory.validation';
@@ -36,7 +38,7 @@ export class InventoryService {
     });
 
     if (itemCount != 0) {
-      throw new HttpException('Name is already exist', 200);
+      throw new HttpException('Name is already exist', 409);
     }
 
     const { variation, ...item } = request;
@@ -180,10 +182,20 @@ export class InventoryService {
     }
   }
 
-  async get(id) {
-    const item = await this.prismaService.item.findUnique({
+  async getItemById(id: string): Promise<CreateItemResponse | null> {
+    this.logger.info(`Get Item by ID ${JSON.stringify(id)}`);
+
+    const idNumber = parseInt(id);
+    this.logger.info(idNumber);
+    if (!idNumber) {
+      throw new HttpException('Id is not valid', 400);
+    }
+
+    this.validationService.validate(InventoryValidation.GETITEMBYID, idNumber);
+
+    const result = await this.prismaService.item.findUnique({
       where: {
-        id,
+        id: idNumber,
       },
       include: {
         variation: {
@@ -193,8 +205,102 @@ export class InventoryService {
         },
       },
     });
+
+    if (!result) {
+      throw new HttpException('Item is not found', 404);
+    }
+
+    return result;
   }
-  async getMany() {}
-  async update(request) {}
-  async delete(id) {}
+
+  async getItemsWithPaggination(
+    request: GetItemsWithPagination,
+  ): Promise<GetItemsWithPaginationResponse> {
+    this.logger.info(`Get Items with Pagination ${JSON.stringify(request)}`);
+
+    request = {
+      ...request,
+      page: request.page ?? '1',
+      pageSize: request.pageSize ?? '10',
+    };
+    // Transform string to number
+    this.logger.info(request.pageSize);
+    const paggination = {
+      page: parseInt(request.page),
+      pageSize: parseInt(request.pageSize),
+    };
+
+    if (!paggination.page || !paggination.pageSize) {
+      throw new HttpException('page number or page size is not valid', 400);
+    }
+
+    const requestValidation = this.validationService.validate(
+      InventoryValidation.GETITEMWITHPAGINATION,
+      paggination,
+    );
+
+    // Calculate the offset
+    const skip = (requestValidation.page - 1) * requestValidation.pageSize;
+
+    // Fetch the total number of items
+    const totalItems = await this.prismaService.item.count();
+
+    const items = await this.prismaService.item.findMany({
+      skip,
+      take: requestValidation.pageSize,
+    });
+
+    const totalPages = Math.ceil(totalItems / requestValidation.pageSize);
+
+    return {
+      totalItems: totalItems,
+      totalPages: totalPages,
+      currentPage: requestValidation.page,
+      items: items,
+    };
+  }
+
+  // async update(request, id: string) {
+  //   this.logger.info(`Update an item no. ${JSON.stringify(id)}`);
+
+  //   const idNumber = parseInt(id);
+  //   this.logger.info(idNumber);
+  //   if (!idNumber) {
+  //     throw new HttpException('Id is not valid', 400);
+  //   }
+
+  //   const requestValidation = this.validationService.validate(
+  //     InventoryValidation.UPDATE,
+  //     request,
+  //   );
+
+  //   return null;
+  // }
+  async deleteItemById(id: string): Promise<any> {
+    this.logger.info(`Delete Item by ID ${JSON.stringify(id)}`);
+
+    const idNumber = parseInt(id);
+    this.logger.info(idNumber);
+    if (!idNumber) {
+      throw new HttpException('Id is not valid', 400);
+    }
+
+    const result = await this.prismaService.item.count({
+      where: {
+        id: idNumber,
+      },
+    });
+
+    if (!result) {
+      throw new HttpException('Item is not found', 404);
+    }
+
+    const deleted = await this.prismaService.item.delete({
+      where: {
+        id: idNumber,
+      },
+    });
+
+    return deleted;
+  }
 }
