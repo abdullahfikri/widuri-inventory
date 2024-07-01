@@ -4,7 +4,7 @@ info:
   description: Documentation for create, get, update, and delete the inventory
   version: 0.0.1
 servers:
-  - url: http://localhost:3000/v1
+  - url: http://localhost:8080/v1
     description: Development server
 paths:
   /inventory:

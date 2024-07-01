@@ -1,681 +1,685 @@
 {
-    "openapi": "3.0.0",
-    "info": {
-        "title": "Inventory Documentation",
-        "description": "Documentation for create, get, update, and delete the inventory",
-        "version": "0.0.1"
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Inventory Documentation",
+    "description": "Documentation for create, get, update, and delete the inventory",
+    "version": "0.0.1"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/v1",
+      "description": "Development server"
     },
-    "servers": [
-        {
-            "url": "http://localhost:3000/v1",
-            "description": "Development server"
-        }
-    ],
-    "paths": {
-        "/inventory": {
-            "post": {
-                "summary": "Create inventory",
-                "description": "Saving an item, variant item, and subvariant to inventory.",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/Item"
-                            },
-                            "examples": {
-                                "Without Variant": {
-                                    "$ref": "#/components/examples/withoutVariant"
-                                },
-                                "With Variant Without SubVariant": {
-                                    "$ref": "#/components/examples/withVariantWithoutSubvariant"
-                                },
-                                "With Variant and With subvariant": {
-                                    "$ref": "#/components/examples/withVariantWithSubvariant"
-                                }
-                            }
-                        }
-                    }
+    {
+      "url": "https://inventoryapp-1-0.onrender.com/v1",
+      "description": "Development server"
+    }
+  ],
+  "paths": {
+    "/inventory": {
+      "post": {
+        "summary": "Create inventory",
+        "description": "Saving an item, variant item, and subvariant to inventory.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Item"
+              },
+              "examples": {
+                "Without Variant": {
+                  "$ref": "#/components/examples/withoutVariant"
                 },
-                "responses": {
-                    "200": {
-                        "$ref": "#/components/responses/SuccessResponse"
-                    },
-                    "400": {
-                        "description": "Validation Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ValidationError"
-                                },
-                                "examples": {
-                                    "Single Validation Error": {
-                                        "value": {
-                                            "message": [
-                                                {
-                                                    "path": "name",
-                                                    "message": "Required"
-                                                }
-                                            ],
-                                            "errors": "Validation error"
-                                        }
-                                    },
-                                    "Multi Validation Error": {
-                                        "value": {
-                                            "message": [
-                                                {
-                                                    "path": "name",
-                                                    "message": "Required"
-                                                },
-                                                {
-                                                    "path": "description",
-                                                    "message": "Required"
-                                                },
-                                                {
-                                                    "path": "stock",
-                                                    "message": "Expected number, received string"
-                                                }
-                                            ],
-                                            "errors": "Validation error"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "409": {
-                        "description": "Error response for multiple same value on unique property",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorSchema"
-                                },
-                                "example": {
-                                    "message": "Name is already exist",
-                                    "errors": "Conflic"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/InternalServerError"
-                    }
+                "With Variant Without SubVariant": {
+                  "$ref": "#/components/examples/withVariantWithoutSubvariant"
+                },
+                "With Variant and With subvariant": {
+                  "$ref": "#/components/examples/withVariantWithSubvariant"
                 }
-            },
-            "get": {
-                "summary": "Retrieve a list of items with pagination",
-                "description": "Retrieve a paginated list of items.",
-                "parameters": [
-                    {
-                        "name": "page",
-                        "in": "query",
-                        "required": false,
-                        "description": "Page number for pagination",
-                        "schema": {
-                            "type": "integer",
-                            "default": 1
-                        }
-                    },
-                    {
-                        "name": "pageSize",
-                        "in": "query",
-                        "required": false,
-                        "description": "Number of items per page",
-                        "schema": {
-                            "type": "integer",
-                            "default": 10,
-                            "example": 1
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successful response",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ResponseWithPagination"
-                                },
-                                "example": {
-                                    "totalItems": "15",
-                                    "totalPages": "15",
-                                    "currentPage": "1",
-                                    "items": [
-                                        {
-                                            "id": "42",
-                                            "name": "Apple Mackbook M2 TestkJ",
-                                            "description": "Some description...Some description...Some description...Some description...Some description...",
-                                            "variant": "Warna",
-                                            "stock": null,
-                                            "price": null,
-                                            "subvariant": "Spesifikasi Memori"
-                                        }
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad request with wrong format page and pageSize",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorSchema"
-                                },
-                                "example": {
-                                    "message": "page number or page size is not valid",
-                                    "errors": "Bad Request"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/InternalServerError"
-                    }
-                }
+              }
             }
-        },
-        "/inventory/{id}": {
-            "get": {
-                "summary": "Retrieve an item by ID",
-                "description": "Retrieve details of an item by its unique ID.",
-                "parameters": [
-                    {
-                        "$ref": "#/components/parameters/id"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "$ref": "#/components/responses/SuccessResponse"
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/NotValidId"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/NotFoundItem"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/InternalServerError"
-                    }
-                }
-            },
-            "delete": {
-                "summary": "Retrieve an item by ID",
-                "description": "Retrieve details of an item by its unique ID.",
-                "parameters": [
-                    {
-                        "$ref": "#/components/parameters/id"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successful response",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ResponseDelete"
-                                },
-                                "example": {
-                                    "data": {
-                                        "id": "58",
-                                        "name": "Apple Mackbook M2 Tests11",
-                                        "description": "Some description...Some description...Some description...Some description...Some description...",
-                                        "variant": "Warna",
-                                        "stock": null,
-                                        "price": null,
-                                        "subvariant": "Spesifikasi Memori"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/NotValidId"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/NotFoundItem"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/InternalServerError"
-                    }
-                }
-            }
-        }
-    },
-    "components": {
-        "parameters": {
-            "id": {
-                "name": "id",
-                "in": "path",
-                "required": true,
-                "description": "Unique ID of the item",
-                "schema": {
-                    "type": "string"
-                }
-            }
-        },
-        "schemas": {
-            "SubItem": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "number"
-                    },
-                    "name": {
-                        "type": "string"
-                    },
-                    "stock": {
-                        "type": "number"
-                    },
-                    "price": {
-                        "type": "string"
-                    },
-                    "subvariation": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "id": {
-                                    "type": "number"
-                                },
-                                "name": {
-                                    "type": "string"
-                                },
-                                "stock": {
-                                    "type": "number"
-                                },
-                                "price": {
-                                    "type": "string"
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            "RawItem": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "string"
-                    },
-                    "name": {
-                        "type": "string"
-                    },
-                    "description": {
-                        "type": "string"
-                    },
-                    "stock": {
-                        "type": "number"
-                    },
-                    "price": {
-                        "type": "string"
-                    },
-                    "variant": {
-                        "type": "string"
-                    },
-                    "subvariant": {
-                        "type": "string"
-                    }
-                }
-            },
-            "Item": {
-                "type": "object",
-                "allOf": [
-                    {
-                        "$ref": "#/components/schemas/RawItem"
-                    }
-                ],
-                "properties": {
-                    "variation": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/SubItem"
-                        },
-                        "description": "A list of variations of the item."
-                    }
-                }
-            },
-            "Response": {
-                "type": "object",
-                "properties": {
-                    "data": {
-                        "$ref": "#/components/schemas/Item"
-                    }
-                }
-            },
-            "ResponseWithPagination": {
-                "type": "object",
-                "properties": {
-                    "totalItems": {
-                        "type": "number"
-                    },
-                    "totalPages": {
-                        "type": "number"
-                    },
-                    "currentPage": {
-                        "type": "number"
-                    },
-                    "items": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/Item"
-                        }
-                    }
-                }
-            },
-            "ResponseDelete": {
-                "type": "object",
-                "properties": {
-                    "data": {
-                        "$ref": "#/components/schemas/RawItem"
-                    }
-                }
-            },
-            "ValidationError": {
-                "type": "object",
-                "properties": {
-                    "message": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "path": {
-                                    "type": "string"
-                                },
-                                "message": {
-                                    "type": "string"
-                                }
-                            }
-                        }
-                    },
-                    "errors": {
-                        "type": "string"
-                    }
-                }
-            },
-            "ErrorSchema": {
-                "type": "object",
-                "properties": {
-                    "message": {
-                        "type": "string"
-                    },
-                    "errors": {
-                        "type": "string"
-                    }
-                }
-            }
-        },
-        "examples": {
-            "withoutVariant": {
-                "description": "Example for request without Variant",
-                "value": {
-                    "name": "Laptop Asus A455LX,",
-                    "description": "Some description...Some description...Some description...Some description...Some description...,",
-                    "stock": "50,",
-                    "price": 8500000.12
-                }
-            },
-            "withVariantWithoutSubvariant": {
-                "description": "Example for request with Variant without subvariant",
-                "value": {
-                    "name": "Laptop Asus A455LX,",
-                    "description": "Some description...Some description...Some description...Some description...Some description...,",
-                    "variant": "Warna,",
-                    "variation": [
-                        {
-                            "name": "Putih",
-                            "stock": 30,
-                            "price": "5000000,00"
-                        },
-                        {
-                            "name": "Merah",
-                            "stock": 30,
-                            "price": "6000000,00"
-                        }
-                    ]
-                }
-            },
-            "withVariantWithSubvariant": {
-                "description": "Example for request with Variant and with subvariant",
-                "value": {
-                    "name": "Apple Mackbook M2",
-                    "description": "Some description...Some description...Some description...Some description...Some description...",
-                    "variant": "Warna",
-                    "subvariant": "Spesifikasi Memori",
-                    "variation": [
-                        {
-                            "name": "Putih2",
-                            "subvariation": [
-                                {
-                                    "name": "16GB 512GB",
-                                    "stock": 50,
-                                    "price": "15000000,00"
-                                },
-                                {
-                                    "name": "8GB 512GB",
-                                    "stock": 50,
-                                    "price": "13000000,00"
-                                },
-                                {
-                                    "name": "8GB 1TB",
-                                    "stock": 50,
-                                    "price": "14000000,00"
-                                }
-                            ]
-                        },
-                        {
-                            "name": "Merah",
-                            "subvariation": [
-                                {
-                                    "name": "16GB 512GB",
-                                    "stock": 50,
-                                    "price": "15000000,00"
-                                },
-                                {
-                                    "name": "8GB 512GB",
-                                    "stock": 50,
-                                    "price": "13000000,00"
-                                },
-                                {
-                                    "name": "8GB 1TB",
-                                    "stock": 50,
-                                    "price": "14000000,00"
-                                }
-                            ]
-                        }
-                    ]
-                }
-            },
-            "withoutVariantResponse": {
-                "description": "Example for request without Variant",
-                "value": {
-                    "data": {
-                        "id": "66",
-                        "name": "Laptop Asus A455LX",
-                        "description": "Some description...Some description...Some description...Some description...Some description...",
-                        "variant": null,
-                        "stock": "50",
-                        "price": "8500000.12",
-                        "subvariant": null
-                    }
-                }
-            },
-            "withVariantWithoutSubvariantResponse": {
-                "description": "Example for request with Variant without subvariant",
-                "value": {
-                    "data": {
-                        "id": "19",
-                        "name": "Laptop Asus A455LX",
-                        "description": "Some description...Some description...Some description...Some description...Some description...",
-                        "variant": "Warna",
-                        "stock": null,
-                        "price": null,
-                        "subvariant": null,
-                        "variation": [
-                            {
-                                "id": "21",
-                                "name": "Putih",
-                                "stock": "30",
-                                "price": "5000000",
-                                "item_id": "19"
-                            },
-                            {
-                                "id": "22",
-                                "name": "Merah",
-                                "stock": "30",
-                                "price": "6000000",
-                                "item_id": "19"
-                            }
-                        ]
-                    }
-                }
-            },
-            "withVariantWithSubvariantResponse": {
-                "description": "Example for request with Variant and with subvariant",
-                "value": {
-                    "data": {
-                        "id": "67",
-                        "description": "Some description...Some description...Some description...Some description...Some description...",
-                        "name": "Apple Mackbook M2",
-                        "price": null,
-                        "stock": null,
-                        "subvariant": "Spesifikasi Memori",
-                        "variant": "Warna",
-                        "variation": [
-                            {
-                                "id": "87",
-                                "name": "Putih2",
-                                "price": null,
-                                "stock": null,
-                                "item_id": "67",
-                                "subvariation": [
-                                    {
-                                        "id": "151",
-                                        "name": "16GB 512GB",
-                                        "price": "15000000",
-                                        "stock": "50",
-                                        "variation_id": "87"
-                                    },
-                                    {
-                                        "id": "152",
-                                        "name": "8GB 512GB",
-                                        "price": "13000000",
-                                        "stock": "50",
-                                        "variation_id": "87"
-                                    },
-                                    {
-                                        "id": "153",
-                                        "name": "8GB 1TB",
-                                        "price": "14000000",
-                                        "stock": "50",
-                                        "variation_id": "87"
-                                    }
-                                ]
-                            },
-                            {
-                                "id": "88",
-                                "name": "Merah",
-                                "price": null,
-                                "stock": null,
-                                "item_id": "67",
-                                "subvariation": [
-                                    {
-                                        "id": "154",
-                                        "name": "16GB 512GB",
-                                        "price": "15000000",
-                                        "stock": "50",
-                                        "variation_id": "88"
-                                    },
-                                    {
-                                        "id": "155",
-                                        "name": "8GB 512GB",
-                                        "price": "13000000",
-                                        "stock": "50",
-                                        "variation_id": "88"
-                                    },
-                                    {
-                                        "id": "156",
-                                        "name": "8GB 1TB",
-                                        "price": "14000000",
-                                        "stock": "50",
-                                        "variation_id": "88"
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                }
-            }
+          }
         },
         "responses": {
-            "SuccessResponse": {
-                "description": "Successful response",
-                "content": {
-                    "application/json": {
-                        "schema": {
-                            "type": "object",
-                            "properties": {
-                                "data": {
-                                    "$ref": "#/components/schemas/Item"
-                                }
-                            }
-                        },
-                        "examples": {
-                            "Without Variant": {
-                                "$ref": "#/components/examples/withoutVariantResponse"
-                            },
-                            "With Variant Without SubVariant": {
-                                "$ref": "#/components/examples/withVariantWithoutSubvariantResponse"
-                            },
-                            "With Variant and With subvariant": {
-                                "$ref": "#/components/examples/withVariantWithSubvariantResponse"
-                            }
+          "200": {
+            "$ref": "#/components/responses/SuccessResponse"
+          },
+          "400": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                },
+                "examples": {
+                  "Single Validation Error": {
+                    "value": {
+                      "message": [
+                        {
+                          "path": "name",
+                          "message": "Required"
                         }
+                      ],
+                      "errors": "Validation error"
                     }
-                }
-            },
-            "NotValidId": {
-                "description": "Id not valid format",
-                "content": {
-                    "application/json": {
-                        "schema": {
-                            "$ref": "#/components/schemas/ErrorSchema"
+                  },
+                  "Multi Validation Error": {
+                    "value": {
+                      "message": [
+                        {
+                          "path": "name",
+                          "message": "Required"
                         },
-                        "example": {
-                            "message": "Id is not valid",
-                            "errors": "Bad Request"
-                        }
-                    }
-                }
-            },
-            "NotFoundItem": {
-                "description": "Item not found",
-                "content": {
-                    "application/json": {
-                        "schema": {
-                            "$ref": "#/components/schemas/ErrorSchema"
+                        {
+                          "path": "description",
+                          "message": "Required"
                         },
-                        "example": {
-                            "message": "Item is not found",
-                            "errors": "Not Found"
+                        {
+                          "path": "stock",
+                          "message": "Expected number, received string"
                         }
+                      ],
+                      "errors": "Validation error"
                     }
+                  }
                 }
-            },
-            "InternalServerError": {
-                "description": "Error response for multiple same value on unique property",
-                "content": {
-                    "application/json": {
-                        "schema": {
-                            "$ref": "#/components/schemas/ErrorSchema"
-                        },
-                        "example": {
-                            "message": "Error message...",
-                            "errors": "Internal Server Error"
-                        }
-                    }
-                }
+              }
             }
+          },
+          "409": {
+            "description": "Error response for multiple same value on unique property",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                },
+                "example": {
+                  "message": "Name is already exist",
+                  "errors": "Conflic"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
         }
+      },
+      "get": {
+        "summary": "Retrieve a list of items with pagination",
+        "description": "Retrieve a paginated list of items.",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "description": "Page number for pagination",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "description": "Number of items per page",
+            "schema": {
+              "type": "integer",
+              "default": 10,
+              "example": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseWithPagination"
+                },
+                "example": {
+                  "totalItems": "15",
+                  "totalPages": "15",
+                  "currentPage": "1",
+                  "items": [
+                    {
+                      "id": "42",
+                      "name": "Apple Mackbook M2 TestkJ",
+                      "description": "Some description...Some description...Some description...Some description...Some description...",
+                      "variant": "Warna",
+                      "stock": null,
+                      "price": null,
+                      "subvariant": "Spesifikasi Memori"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request with wrong format page and pageSize",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
+                },
+                "example": {
+                  "message": "page number or page size is not valid",
+                  "errors": "Bad Request"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/inventory/{id}": {
+      "get": {
+        "summary": "Retrieve an item by ID",
+        "description": "Retrieve details of an item by its unique ID.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/SuccessResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/NotValidId"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundItem"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Retrieve an item by ID",
+        "description": "Retrieve details of an item by its unique ID.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDelete"
+                },
+                "example": {
+                  "data": {
+                    "id": "58",
+                    "name": "Apple Mackbook M2 Tests11",
+                    "description": "Some description...Some description...Some description...Some description...Some description...",
+                    "variant": "Warna",
+                    "stock": null,
+                    "price": null,
+                    "subvariant": "Spesifikasi Memori"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/NotValidId"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundItem"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
     }
+  },
+  "components": {
+    "parameters": {
+      "id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "Unique ID of the item",
+        "schema": {
+          "type": "string"
+        }
+      }
+    },
+    "schemas": {
+      "SubItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "stock": {
+            "type": "number"
+          },
+          "price": {
+            "type": "string"
+          },
+          "subvariation": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "number"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "stock": {
+                  "type": "number"
+                },
+                "price": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "RawItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "stock": {
+            "type": "number"
+          },
+          "price": {
+            "type": "string"
+          },
+          "variant": {
+            "type": "string"
+          },
+          "subvariant": {
+            "type": "string"
+          }
+        }
+      },
+      "Item": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/RawItem"
+          }
+        ],
+        "properties": {
+          "variation": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SubItem"
+            },
+            "description": "A list of variations of the item."
+          }
+        }
+      },
+      "Response": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/Item"
+          }
+        }
+      },
+      "ResponseWithPagination": {
+        "type": "object",
+        "properties": {
+          "totalItems": {
+            "type": "number"
+          },
+          "totalPages": {
+            "type": "number"
+          },
+          "currentPage": {
+            "type": "number"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Item"
+            }
+          }
+        }
+      },
+      "ResponseDelete": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/RawItem"
+          }
+        }
+      },
+      "ValidationError": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "errors": {
+            "type": "string"
+          }
+        }
+      },
+      "ErrorSchema": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "errors": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "examples": {
+      "withoutVariant": {
+        "description": "Example for request without Variant",
+        "value": {
+          "name": "Laptop Asus A455LX,",
+          "description": "Some description...Some description...Some description...Some description...Some description...,",
+          "stock": "50,",
+          "price": 8500000.12
+        }
+      },
+      "withVariantWithoutSubvariant": {
+        "description": "Example for request with Variant without subvariant",
+        "value": {
+          "name": "Laptop Asus A455LX,",
+          "description": "Some description...Some description...Some description...Some description...Some description...,",
+          "variant": "Warna,",
+          "variation": [
+            {
+              "name": "Putih",
+              "stock": 30,
+              "price": "5000000,00"
+            },
+            {
+              "name": "Merah",
+              "stock": 30,
+              "price": "6000000,00"
+            }
+          ]
+        }
+      },
+      "withVariantWithSubvariant": {
+        "description": "Example for request with Variant and with subvariant",
+        "value": {
+          "name": "Apple Mackbook M2",
+          "description": "Some description...Some description...Some description...Some description...Some description...",
+          "variant": "Warna",
+          "subvariant": "Spesifikasi Memori",
+          "variation": [
+            {
+              "name": "Putih2",
+              "subvariation": [
+                {
+                  "name": "16GB 512GB",
+                  "stock": 50,
+                  "price": "15000000,00"
+                },
+                {
+                  "name": "8GB 512GB",
+                  "stock": 50,
+                  "price": "13000000,00"
+                },
+                {
+                  "name": "8GB 1TB",
+                  "stock": 50,
+                  "price": "14000000,00"
+                }
+              ]
+            },
+            {
+              "name": "Merah",
+              "subvariation": [
+                {
+                  "name": "16GB 512GB",
+                  "stock": 50,
+                  "price": "15000000,00"
+                },
+                {
+                  "name": "8GB 512GB",
+                  "stock": 50,
+                  "price": "13000000,00"
+                },
+                {
+                  "name": "8GB 1TB",
+                  "stock": 50,
+                  "price": "14000000,00"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "withoutVariantResponse": {
+        "description": "Example for request without Variant",
+        "value": {
+          "data": {
+            "id": "66",
+            "name": "Laptop Asus A455LX",
+            "description": "Some description...Some description...Some description...Some description...Some description...",
+            "variant": null,
+            "stock": "50",
+            "price": "8500000.12",
+            "subvariant": null
+          }
+        }
+      },
+      "withVariantWithoutSubvariantResponse": {
+        "description": "Example for request with Variant without subvariant",
+        "value": {
+          "data": {
+            "id": "19",
+            "name": "Laptop Asus A455LX",
+            "description": "Some description...Some description...Some description...Some description...Some description...",
+            "variant": "Warna",
+            "stock": null,
+            "price": null,
+            "subvariant": null,
+            "variation": [
+              {
+                "id": "21",
+                "name": "Putih",
+                "stock": "30",
+                "price": "5000000",
+                "item_id": "19"
+              },
+              {
+                "id": "22",
+                "name": "Merah",
+                "stock": "30",
+                "price": "6000000",
+                "item_id": "19"
+              }
+            ]
+          }
+        }
+      },
+      "withVariantWithSubvariantResponse": {
+        "description": "Example for request with Variant and with subvariant",
+        "value": {
+          "data": {
+            "id": "67",
+            "description": "Some description...Some description...Some description...Some description...Some description...",
+            "name": "Apple Mackbook M2",
+            "price": null,
+            "stock": null,
+            "subvariant": "Spesifikasi Memori",
+            "variant": "Warna",
+            "variation": [
+              {
+                "id": "87",
+                "name": "Putih2",
+                "price": null,
+                "stock": null,
+                "item_id": "67",
+                "subvariation": [
+                  {
+                    "id": "151",
+                    "name": "16GB 512GB",
+                    "price": "15000000",
+                    "stock": "50",
+                    "variation_id": "87"
+                  },
+                  {
+                    "id": "152",
+                    "name": "8GB 512GB",
+                    "price": "13000000",
+                    "stock": "50",
+                    "variation_id": "87"
+                  },
+                  {
+                    "id": "153",
+                    "name": "8GB 1TB",
+                    "price": "14000000",
+                    "stock": "50",
+                    "variation_id": "87"
+                  }
+                ]
+              },
+              {
+                "id": "88",
+                "name": "Merah",
+                "price": null,
+                "stock": null,
+                "item_id": "67",
+                "subvariation": [
+                  {
+                    "id": "154",
+                    "name": "16GB 512GB",
+                    "price": "15000000",
+                    "stock": "50",
+                    "variation_id": "88"
+                  },
+                  {
+                    "id": "155",
+                    "name": "8GB 512GB",
+                    "price": "13000000",
+                    "stock": "50",
+                    "variation_id": "88"
+                  },
+                  {
+                    "id": "156",
+                    "name": "8GB 1TB",
+                    "price": "14000000",
+                    "stock": "50",
+                    "variation_id": "88"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      }
+    },
+    "responses": {
+      "SuccessResponse": {
+        "description": "Successful response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "data": {
+                  "$ref": "#/components/schemas/Item"
+                }
+              }
+            },
+            "examples": {
+              "Without Variant": {
+                "$ref": "#/components/examples/withoutVariantResponse"
+              },
+              "With Variant Without SubVariant": {
+                "$ref": "#/components/examples/withVariantWithoutSubvariantResponse"
+              },
+              "With Variant and With subvariant": {
+                "$ref": "#/components/examples/withVariantWithSubvariantResponse"
+              }
+            }
+          }
+        }
+      },
+      "NotValidId": {
+        "description": "Id not valid format",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorSchema"
+            },
+            "example": {
+              "message": "Id is not valid",
+              "errors": "Bad Request"
+            }
+          }
+        }
+      },
+      "NotFoundItem": {
+        "description": "Item not found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorSchema"
+            },
+            "example": {
+              "message": "Item is not found",
+              "errors": "Not Found"
+            }
+          }
+        }
+      },
+      "InternalServerError": {
+        "description": "Error response for multiple same value on unique property",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorSchema"
+            },
+            "example": {
+              "message": "Error message...",
+              "errors": "Internal Server Error"
+            }
+          }
+        }
+      }
+    }
+  }
 }

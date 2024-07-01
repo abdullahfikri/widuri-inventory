@@ -10,7 +10,6 @@ async function bootstrap() {
 
   const logger = app.get(WINSTON_MODULE_NEST_PROVIDER);
   app.useLogger(logger);
-  app.enableCors();
 
   // Load your OpenAPI YAML file
   const document = fs.readFileSync(
@@ -20,7 +19,9 @@ async function bootstrap() {
 
   // Serve Swagger UI
   app.use('/api', swaggerUi.serve, swaggerUi.setup(JSON.parse(document)));
+  console.log(parseInt(process.env.PORT, 10));
+  app.enableCors();
 
-  await app.listen(3000);
+  await app.listen(parseInt(process.env.PORT, 10) || 3000);
 }
 bootstrap();
